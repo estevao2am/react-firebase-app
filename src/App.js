@@ -8,6 +8,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   updateDoc,
 } from "firebase/firestore";
 
@@ -33,42 +34,25 @@ function App() {
       });
   }
 
-  async function getPost() {
-    // const postRef = doc(db, "Users", "blxpSMirngsItEmF3V0a");
-    // await getDoc(postRef)
-    //   .then((snapshot) => {
-    //     setName(snapshot.data().name);
-    //     setEmail(snapshot.data().email);
-    //     setPassword(snapshot.data().password);
-    //   })
-    //   .catch(() => {
-    //     console.log("Errooo");
-    //   });
-
-    const usersRef = collection(db, "Users");
-    await getDocs(usersRef)
-      .then((snapshot) => {
-        let list = [];
-
-        snapshot.forEach((doc) => {
-          list.push({
-            id: doc.id,
-            name: doc.data().name,
-            email: doc.data().email,
-            password: doc.data().password,
-          });
-        });
-
-        setUsers(list);
-        console.log(list);
-      })
-      .catch((error) => {
-        console.log("Ocoreu um erro");
-      });
-  }
-
   useEffect(() => {
-    getPost();
+    async function LoadPost() {}
+
+    const unsub = onSnapshot(collection(db, "Users"), (snapshot) => {
+      let list = [];
+
+      snapshot.forEach((doc) => {
+        list.push({
+          id: doc.id,
+          name: doc.data().name,
+          email: doc.data().email,
+          password: doc.data().password,
+        });
+      });
+
+      setUsers(list);
+      console.log(list);
+    });
+    LoadPost();
   }, []);
 
   async function updateUser() {
