@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import { db } from "./firebaseConnection";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -66,6 +67,10 @@ function App() {
       });
   }
 
+  useEffect(() => {
+    getPost();
+  }, []);
+
   async function updateUser() {
     const userRef = doc(db, "Users", userId);
     await updateDoc(userRef, {
@@ -77,6 +82,13 @@ function App() {
       setEmail("");
       setName("");
       setPassword("");
+    });
+  }
+
+  async function deleteUser(id) {
+    const userRef = doc(db, "Users", id);
+    await deleteDoc(userRef).then(() => {
+      alert("User Deleted");
     });
   }
 
@@ -118,7 +130,7 @@ function App() {
         />
 
         <button onClick={handleAdd}>Create</button>
-        <button onClick={getPost}>Create</button>
+        {/* <button onClick={getPost}>findAll</button> */}
         <button onClick={updateUser}>update user</button>
 
         <ul>
@@ -127,12 +139,14 @@ function App() {
               <li key={user.id}>
                 <strong>ID:{user.id}</strong>
                 <br />
-
                 <span>Name:{user.name}</span>
                 <br />
                 <span>email:{user.email}</span>
                 <br />
                 <span>Name:{user.password}</span>
+                <br />
+                <button onClick={() => deleteUser(user.id)}>Delete</button>{" "}
+                <br />
                 <br />
                 <br />
               </li>
