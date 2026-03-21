@@ -1,12 +1,20 @@
 import { useState } from "react";
 import "./App.css";
 import { db } from "./firebaseConnection";
-import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 
 function App() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [userId, setUserId] = useState("");
 
   const [users, setUsers] = useState([]);
 
@@ -58,10 +66,33 @@ function App() {
       });
   }
 
+  async function updateUser() {
+    const userRef = doc(db, "Users", userId);
+    await updateDoc(userRef, {
+      name: name,
+      email: email,
+      password: password,
+    }).then(() => {
+      console.log("User was updated");
+      setEmail("");
+      setName("");
+      setPassword("");
+    });
+  }
+
   return (
     <div className="App">
       <h2>Starting react with firebase</h2>
       <div className="container">
+        <label>ID do Post:</label>
+
+        <input
+          placeholder="Digite o ID do post"
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+        />
+        <br />
+
         <label>Name</label>
         <input
           type="text"
@@ -88,11 +119,15 @@ function App() {
 
         <button onClick={handleAdd}>Create</button>
         <button onClick={getPost}>Create</button>
+        <button onClick={updateUser}>update user</button>
 
         <ul>
           {users.map((user) => {
             return (
               <li key={user.id}>
+                <strong>ID:{user.id}</strong>
+                <br />
+
                 <span>Name:{user.name}</span>
                 <br />
                 <span>email:{user.email}</span>
