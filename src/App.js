@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
@@ -64,6 +65,21 @@ function App() {
       console.log(list);
     });
     LoadPost();
+  }, []);
+
+  useEffect(() => {
+    async function checkLogin() {
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          setUser(true);
+          setUserDetail({
+            uid: user.uid,
+            email: user.email,
+          });
+        }
+      });
+    }
+    checkLogin();
   }, []);
 
   async function updateUser() {
