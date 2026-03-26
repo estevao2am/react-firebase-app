@@ -11,7 +11,11 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 
 function App() {
   const [name, setName] = useState("");
@@ -23,6 +27,9 @@ function App() {
   const [passwordUser, setPasswordUSer] = useState("");
 
   const [users, setUsers] = useState([]);
+
+  const [user, setUser] = useState(false);
+  const [userDetail, setUserDetail] = useState();
 
   async function handleAdd() {
     await addDoc(collection(db, "Users"), {
@@ -93,10 +100,43 @@ function App() {
         }
       });
   }
+  async function login() {
+    await signInWithEmailAndPassword(auth, emailUser, passwordUser)
+      .then((value) => {
+        console.log("Usuario logado");
+
+        setUserDetail({
+          uid: value.user.uid,
+          email: value.user.email,
+        });
+        setUser(true);
+
+        setEmailUser("");
+        passwordUser("");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  async function logout() {
+    await signOut(auth);
+    setUser(false);
+    setUserDetail({});
+  }
 
   return (
     <div className="App">
       <h2>Starting react with firebase</h2>
+      {user && (
+        <div>
+          <strong>Seja bem vindo voce esta logado !</strong>
+          <span>
+            ID: {userDetail.uid} - Email:{userDetail.email}
+          </span>
+          <button onClick={logout}>Logout</button>
+        </div>
+      )}
       <div className="container">
         <label>Email</label>
         <input
@@ -113,6 +153,7 @@ function App() {
         />
         <br />
         <button onClick={newUser}>Sign in</button>
+        <button onClick={login}>Login</button>
       </div>
       <hr></hr>
       <br /> <br />
@@ -155,16 +196,16 @@ function App() {
         <button onClick={updateUser}>update user</button>
 
         <ul>
-          {users.map((user) => {
+          {users.map((item) => {
             return (
               <li key={user.id}>
-                <strong>ID:{user.id}</strong>
+                <strong>ID:{item.id}</strong>
                 <br />
-                <span>Name:{user.name}</span>
+                <span>Name:{item.name}</span>
                 <br />
-                <span>email:{user.email}</span>
+                <span>email:{item.email}</span>
                 <br />
-                <span>Name:{user.password}</span>
+                <span>Name:{item.password}</span>
                 <br />
                 <button onClick={() => deleteUser(user.id)}>Delete</button>{" "}
                 <br />
